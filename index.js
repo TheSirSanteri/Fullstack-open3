@@ -4,7 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const app = express()
 
-app.use(express.static(path.join(__dirname, 'dist')));
+//app.use(express.static(path.join(__dirname, 'dist')));
 app.use(express.json())
 app.use(cors());
 
@@ -19,10 +19,10 @@ let contacts = [
     {id: "4", name: "Mary Poppendieck", number: "39-23-6423122"}
   ]
 
-app.get('*', (req, res) => {
+/*app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
-
+*/
 app.get('/', (request, response) => {
     response.send(
         '<h1>Hello World!</h1>'
