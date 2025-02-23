@@ -44,10 +44,6 @@ let contacts = [
     {id: "4", name: "Mary Poppendieck", number: "39-23-6423122"}
 ] */
 
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-});
-
 app.get('/', (request, response) => {
     response.send(
         '<h1>Hello World!</h1>'
@@ -58,7 +54,7 @@ app.get('/', (request, response) => {
 app.get('/info', async (request, response) => {
     try {
     const currentTime = new Date().toString()
-    const numberOfEntries = Contact.countDocuments({});
+    const numberOfEntries = await Contact.countDocuments({});
     response.send(
         `<p>Phonebook has info for ${numberOfEntries} people</p>
          <p>${currentTime}</p>`
@@ -118,6 +114,10 @@ app.post('/api/persons', async (request, response, next) => {
     });
 });
   
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
