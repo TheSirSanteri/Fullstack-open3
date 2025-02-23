@@ -1,3 +1,4 @@
+require('dotenv').config()
 const mongoose = require('mongoose')
 const express = require('express')
 const morgan = require('morgan')
@@ -5,11 +6,20 @@ const cors = require('cors');
 const path = require('path');
 const app = express()
 
-const db_password = process.env.DB_PASSWORD || 'your-default-password';
-const url = `mongodb+srv://Fullstack:${db_password}@cluster0.7c9rh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+//const db_password = process.env.DB_PASSWORD || process.argv[2];
+//const url = `mongodb+srv://Fullstack:${db_password}@cluster0.7c9rh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+const url = process.env.MONGODB_URI
+
+console.log('connecting to', url)
 
 mongoose.set('strictQuery', false);
-mongoose.connect(url);
+mongoose.connect(url)
+    .then(result => {
+        console.log('connected to MongoDB')
+    })
+    .catch((error) => {
+        console.log('error connecting to MongoDB:', error.message)
+    });
 
 const contactSchema = new mongoose.Schema({
     name: String,
@@ -45,48 +55,53 @@ app.get('/', (request, response) => {
     )
 })
 
-app.get('/info', (request, response) => {
+app.get('/info', async (request, response) => {
+    try {
     const currentTime = new Date().toString()
     const numberOfEntries = Contact.countDocuments({});
     response.send(
         `<p>Phonebook has info for ${numberOfEntries} people</p>
          <p>${currentTime}</p>`
     )
-})
+    }catch (error) {
+        response.status(500).json({ error: "Database error" })
+    }
+});
   
-app.get('/api/persons', (request, response) => {
-    Contact.find({}).then(contacts => {
-        response.json(contacts);
-    });
-})
+app.get('/api/persons', async (request, response) => {
+        await Contact.find({}).then(contacts => {
+            response.json(contacts);
+        })
+    .catch(error => next(error))
+});
 
-app.get('/api/persons/:id', (request, response, next) => {
-    Contact.findById(request.params.id).then(person => {
-        if (person) {
-            response.json(person);
-        } else {
-            response.status(404).send({error: 'Person was not found'});
-        }
+app.get('/api/persons/:id', async (request, response, next) => {
+        await Contact.findById(request.params.id).then(person => {
+            if (person) {
+                response.json(person);
+            } else {
+                response.status(404).send({error: 'Person was not found'});
+            }
     }) 
     .catch(error => next(error))
 })
 
-app.delete('/api/persons/:id', (request, response, next) => {
-    Contact.findByIdAndDelete(request.params.id)
+app.delete('/api/persons/:id', async (request, response, next) => {
+    await Contact.findByIdAndDelete(request.params.id)
     .then(() => response.status(204).end)
     .catch(error => next(error))
 
 })
 
 
-app.post('/api/persons', (request, response, next) => {
+app.post('/api/persons', async (request, response, next) => {
     const body = request.body;
 
     if (!body.name || !body.number) {
         return response.status(400).json({ error: 'name or number is missing' });
     }
 
-    Contact.findOne({ name: body.name }).then(existingContact => {
+    await Contact.findOne({ name: body.name }).then(existingContact => {
         if (existingContact) {
             return response.status(400).json({ error: 'name must be unique' });
         }
@@ -107,3 +122,4 @@ const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
+
