@@ -93,27 +93,30 @@ const App = () => {
   };
 
   const removePerson = (name, id) => {
-    console.log(`Attempting to remove ${name} with id ${id}`);
-    if (window.confirm(`Delete ${name}?`)) {
-      console.log(`Confirmed deletion for ${name}`);
-      console.log(`ID being sent to remove: ${id}`);
-      personsService
-        .remove(id)
-        .then(() => {
-          console.log(`${name} deleted successfully`);
-          setPersons((prevPersons) => (prevPersons || []).filter(n => n.id !== id));
-          setMessage({ text: `Deleted ${name}`, type: 'success' });
-          setTimeout(() => setMessage(null), 5000);
-        })
-        .catch(error => {
-          console.error("Failed to delete person:", error);
-          setMessage({ text: `Failed to delete ${name}`, type: 'error' });
-          setTimeout(() => setMessage(null), 5000);
-        });
-      } else {
-        console.log(`Deletion cancelled for ${name}`);
-      }
-  };
+  console.log(`Attempting to remove ${name} with id ${id}`); // Add debug log
+  if (!id) {
+    console.error("Invalid ID:", id);
+    return;
+  }
+
+  if (window.confirm(`Delete ${name}?`)) {
+    personsService
+      .remove(id)
+      .then(() => {
+        console.log(`${name} deleted successfully`);
+        setPersons((prevPersons) => (prevPersons || []).filter(n => n.id !== id));
+        setMessage({ text: `Deleted ${name}`, type: 'success' });
+        setTimeout(() => setMessage(null), 5000);
+      })
+      .catch(error => {
+        console.error("Failed to delete person:", error);
+        setMessage({ text: `Failed to delete ${name}`, type: 'error' });
+        setTimeout(() => setMessage(null), 5000);
+      });
+  } else {
+    console.log(`Deletion cancelled for ${name}`);
+  }
+};
   
   const personsToShow = (persons || []).filter(person => // Safeguard for filter
     person.name.toLowerCase().includes(filter.toLowerCase())
