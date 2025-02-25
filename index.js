@@ -82,12 +82,26 @@ app.get('/api/persons/:id', async (request, response, next) => {
     .catch(error => next(error))
 })
 
-app.delete('/api/persons/:id', async (request, response, next) => {
-    await Contact.findByIdAndDelete(request.params.id)
-    .then(() => response.status(204).end)
-    .catch(error => next(error))
+app.delete('/api/persons/:id', async (request, response) => {
+    try {
+        const { id } = request.params;
 
-})
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return response.status(400).json({ error: "Invalid ID format" });
+        }
+
+        const deletedPerson = await Contact.findByIdAndDelete(id);
+        
+        if (!deletedPerson) {
+            return response.status(404).json({ error: "Person not found" });
+        }
+
+        response.status(204).end();
+    } catch (error) {
+        console.error("Error deleting person:", error);
+        response.status(500).json({ error: "Internal Server Error" });
+    }
+});
 
 
 app.post('/api/persons', async (request, response, next) => {
