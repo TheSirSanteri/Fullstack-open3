@@ -46,17 +46,18 @@ let contacts = [
 
 
 
-app.get('/', (request, response) => {
+/*app.get('/', (request, response) => {
     response.send(
         '<h1>Hello World!</h1>'
     
     )
 })
+*/
 
 app.get('/info', async (request, response) => {
     try {
     const currentTime = new Date().toString()
-    const numberOfEntries = Contact.countDocuments({});
+    const numberOfEntries = await Contact.countDocuments({});
     response.send(
         `<p>Phonebook has info for ${numberOfEntries} people</p>
          <p>${currentTime}</p>`

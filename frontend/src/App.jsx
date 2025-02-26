@@ -120,13 +120,17 @@ const removePerson = (name, id) => {
     }
 };
   
-const personsToShow = (persons || []).map(person => ({
-  id: person.id || person._id, // Ensure correct field is used
-  name: person.name,
-  number: person.number
-}));
+const personsToShow = (persons || [])
+  .filter(person =>
+    person.name.toLowerCase().includes(filter.toLowerCase())
+  )
+  .map(person => ({
+    id: person.id || person._id, // Ensure correct field is used
+    name: person.name,
+    number: person.number
+  }));
 
-console.log("Corrected personsToShow:", personsToShow);
+  //console.log("Corrected personsToShow:", personsToShow);
 
   //console.log("Persons state:", persons);
   //console.log("Filtered persons:", personsToShow);
