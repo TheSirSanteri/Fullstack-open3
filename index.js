@@ -44,6 +44,10 @@ let contacts = [
     {id: "4", name: "Mary Poppendieck", number: "39-23-6423122"}
 ] */
 
+app.get('*', (req, res) => {
+   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
 app.get('/', (request, response) => {
     response.send(
         '<h1>Hello World!</h1>'
@@ -54,7 +58,7 @@ app.get('/', (request, response) => {
 app.get('/info', async (request, response) => {
     try {
     const currentTime = new Date().toString()
-    const numberOfEntries = await Contact.countDocuments({});
+    const numberOfEntries = Contact.countDocuments({});
     response.send(
         `<p>Phonebook has info for ${numberOfEntries} people</p>
          <p>${currentTime}</p>`
@@ -65,13 +69,17 @@ app.get('/info', async (request, response) => {
 });
   
 app.get('/api/persons', async (request, response) => {
-        await Contact.find({}).then(contacts => {
-            response.json(contacts);
-        })
-    .catch(error => next(error))
+    await Contact.find({}).then(contacts => {
+        response.json(contacts.map(contact => ({
+            id: contact.id.toString(), // Ensure id is included
+            name: contact.name,
+            number: contact.number
+        })));
+    }).catch(error => next(error));
 });
 
 app.get('/api/persons/:id', async (request, response, next) => {
+
         await Contact.findById(request.params.id).then(person => {
             if (person) {
                 response.json(person);
@@ -82,26 +90,12 @@ app.get('/api/persons/:id', async (request, response, next) => {
     .catch(error => next(error))
 })
 
-app.delete('/api/persons/:id', async (request, response) => {
-    try {
-        const { id } = request.params;
+app.delete('/api/persons/:id', async (request, response, next) => {
+    await Contact.findByIdAndDelete(request.params.id)
+    .then(() => response.status(204).end())
+    .catch(error => next(error))
 
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return response.status(400).json({ error: "Invalid ID format" });
-        }
-
-        const deletedPerson = await Contact.findByIdAndDelete(id);
-        
-        if (!deletedPerson) {
-            return response.status(404).json({ error: "Person not found" });
-        }
-
-        response.status(204).end();
-    } catch (error) {
-        console.error("Error deleting person:", error);
-        response.status(500).json({ error: "Internal Server Error" });
-    }
-});
+})
 
 
 app.post('/api/persons', async (request, response, next) => {
@@ -126,10 +120,6 @@ app.post('/api/persons', async (request, response, next) => {
             .then(savedContact => response.status(201).json(savedContact))
             .catch(error => next(error));
     });
-});
-  
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3001

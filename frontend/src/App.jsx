@@ -79,6 +79,7 @@ const App = () => {
     .create(personObject)
     .then(response => {
       setPersons(persons.concat(response));
+      console.log("Persons array before rendering:", persons);
       setNewName('');
       setNewNumber('');
       setMessage({ text: `Added ${response.name}`, type: 'success' });
@@ -92,35 +93,40 @@ const App = () => {
     }
   };
 
-  const removePerson = (name, id) => {
-  console.log(`Attempting to remove ${name} with id ${id}`); // Add debug log
-  if (!id) {
-    console.error("Invalid ID:", id);
-    return;
-  }
-
-  if (window.confirm(`Delete ${name}?`)) {
-    personsService
-      .remove(id)
-      .then(() => {
-        console.log(`${name} deleted successfully`);
-        setPersons((prevPersons) => (prevPersons || []).filter(n => n.id !== id));
-        setMessage({ text: `Deleted ${name}`, type: 'success' });
-        setTimeout(() => setMessage(null), 5000);
-      })
-      .catch(error => {
-        console.error("Failed to delete person:", error);
-        setMessage({ text: `Failed to delete ${name}`, type: 'error' });
-        setTimeout(() => setMessage(null), 5000);
-      });
-  } else {
-    console.log(`Deletion cancelled for ${name}`);
-  }
+const removePerson = (name, id) => {
+    console.log(`Attempting to remove ${name} with id ${id}`); // Debugging
+  
+    if (!id) {
+      console.error("Invalid ID (undefined or null):", id);
+      return;
+    }
+  
+    if (window.confirm(`Delete ${name}?`)) {
+      personsService
+        .remove(id)
+        .then(() => {
+          console.log("Before state update:", persons);
+          setPersons(prevPersons => 
+            prevPersons.filter(person => (person.id || person._id) !== id)
+          );
+          setMessage({ text: `Deleted ${name}`, type: "success" });
+          setTimeout(() => setMessage(null), 5000);
+        })
+        .catch(error => {
+          console.error("Failed to delete person:", error);
+          setMessage({ text: `Failed to delete ${name}`, type: "error" });
+          setTimeout(() => setMessage(null), 5000);
+        });
+    }
 };
   
-  const personsToShow = (persons || []).filter(person => // Safeguard for filter
-    person.name.toLowerCase().includes(filter.toLowerCase())
-  );
+const personsToShow = (persons || []).map(person => ({
+  id: person.id || person._id, // Ensure correct field is used
+  name: person.name,
+  number: person.number
+}));
+
+console.log("Corrected personsToShow:", personsToShow);
 
   //console.log("Persons state:", persons);
   //console.log("Filtered persons:", personsToShow);
