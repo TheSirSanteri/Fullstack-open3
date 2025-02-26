@@ -44,9 +44,7 @@ let contacts = [
     {id: "4", name: "Mary Poppendieck", number: "39-23-6423122"}
 ] */
 
-app.get('*', (req, res) => {
-   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-});
+
 
 app.get('/', (request, response) => {
     response.send(
@@ -68,7 +66,7 @@ app.get('/info', async (request, response) => {
     }
 });
   
-app.get('/api/persons', async (request, response) => {
+app.get('/api/persons', async (request, response, next) => {
     await Contact.find({}).then(contacts => {
         response.json(contacts.map(contact => ({
             id: contact.id.toString(), // Ensure id is included
@@ -120,6 +118,10 @@ app.post('/api/persons', async (request, response, next) => {
             .then(savedContact => response.status(201).json(savedContact))
             .catch(error => next(error));
     });
+});
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3001
