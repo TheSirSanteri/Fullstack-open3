@@ -8,7 +8,15 @@ const contactSchema = new mongoose.Schema({
     minlength: [3, 'Name must be at least 3 characters long'],
     required: true,
     },
-  number: String,
+  number: {
+    type: String,
+    required: [true, "Phone number required"],
+    validate: {
+        //Regex selittää ^ alku, & loppu, \d{2,3} = kaks tai useampi numero, yhteensä vähintään 8 merkkiä
+        validator:  function(v) {return /^\d{2,3}-\d+$/.test(v) && v.length >= 8;},
+        message: props => `${props.value} is not a valid phone number! (format: XX-XXXXXXX)`
+    }
+  },
 });
 
 contactSchema.set('toJSON', {
