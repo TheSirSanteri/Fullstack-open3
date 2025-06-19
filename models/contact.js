@@ -3,9 +3,13 @@ const mongoose = require('mongoose');
 mongoose.set('strictQuery', false);
 
 const contactSchema = new mongoose.Schema({
-  name: String,
+  name: {
+    type: String,
+    minlength: [3, 'Name must be at least 3 characters long'],
+    required: true,
+    },
   number: String,
-})
+});
 
 contactSchema.set('toJSON', {
     transform: (document, returnedObject) => {

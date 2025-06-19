@@ -85,7 +85,12 @@ const App = () => {
     })
     .catch(error => {
       console.error('Failed to add person:', error.response ? error.response.data : error.message);
-      setMessage({ text: 'Failed to add person', type: 'error' });
+
+      const errorMsg = error.response && error.response.data && error.response.data.error
+        ? error.response.data.error
+        : 'Failed to add person';
+
+      setMessage({ text: errorMsg, type: 'error' });
       setTimeout(() => setMessage(null), 5000);
     });
     }

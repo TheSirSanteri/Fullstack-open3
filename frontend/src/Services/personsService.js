@@ -1,5 +1,7 @@
 import axios from 'axios'
-const baseUrl = 'https://fullstack-open3-cxjw.onrender.com/api/persons'
+const baseUrl = process.env.NODE_ENV === 'development'
+  ? 'http://localhost:3001/api/persons'
+  : '/api/persons';
 
 const getAll = () => axios.get(baseUrl).then(response => Array.isArray(response.data) ? response.data : []);
 getAll().then(data => console.log("Fetched persons:", data));
