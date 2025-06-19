@@ -12,12 +12,7 @@ const url = `mongodb+srv://Fullstack:${db_password}@cluster0.7c9rh.mongodb.net/?
 mongoose.set('strictQuery', false)
 mongoose.connect(url)
 
-const contactSchema = new mongoose.Schema({
-  name: String,
-  number: String,
-})
-
-const Contact = mongoose.model('contact', contactSchema)
+const Contact = require('./models/contact');
 
 if (process.argv.length === 3){
     Contact.find({}).then(result => {

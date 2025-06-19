@@ -73,8 +73,6 @@ const App = () => {
       }
     } else {
 
-    personObject.id = uuidv4(); //Person doesn't exist so new ID is made.
-
     personsService
     .create(personObject)
     .then(response => {
@@ -91,7 +89,7 @@ const App = () => {
       setTimeout(() => setMessage(null), 5000);
     });
     }
-  };
+};
 
 const removePerson = (name, id) => {
     console.log(`Attempting to remove ${name} with id ${id}`); // Debugging

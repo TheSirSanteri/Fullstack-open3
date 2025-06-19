@@ -5,6 +5,7 @@ const getAll = () => axios.get(baseUrl).then(response => Array.isArray(response.
 getAll().then(data => console.log("Fetched persons:", data));
 
 const create = newObject => axios.post(baseUrl, newObject).then(response => response.data);
+
 const remove = id => {
     console.log("Attempting to delete ID:", id); // Debugging
     if (!id) {
@@ -14,4 +15,7 @@ const remove = id => {
     return axios.delete(`${baseUrl}/${id}`).then(() => id);
 };
 
-export default { getAll, create, remove };
+const update = (id, updatedObject) =>
+  axios.put(`${baseUrl}/${id}`, updatedObject).then(response => response.data);
+
+export default { getAll, create, remove, update };
